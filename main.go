@@ -1,9 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"github.com/NickSFU/ProductsAPI/config"
 )
 
 func main() {
-	fmt.Println("Hello, GitHub!")
+	//fmt.Println("Hello, GitHub!")
+	config.Init()
+	//config.InsertBaseData()
+	//config.DeleteAllData()
+
 }

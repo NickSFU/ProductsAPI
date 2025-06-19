@@ -1,9 +1,14 @@
 package models
 
-type product struct {
-	id         uint
-	name       string
-	quantity   int
-	unit_coast float64
-	measure    string
+type Measure struct {
+	ID   uint
+	Name string
+}
+
+type Product struct {
+	ID       uint
+	Name     string
+	Quantity int
+	UnitCost float64
+	Measure  uint
 }
