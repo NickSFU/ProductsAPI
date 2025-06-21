@@ -1,10 +1,11 @@
-package config
+package db
 
 import (
 	"database/sql"
 	"fmt"
 	"log"
 
+	"github.com/NickSFU/ProductsAPI/models"
 	_ "github.com/lib/pq"
 )
 
@@ -62,12 +63,35 @@ func DeleteAllData() {
 	}
 }
 
-func readTest() {
-	result, err := db.Query("SELECT * FROM products",
-		"test", 10, 25, "kg",
-	)
+func GetProducts() []models.Product {
+	var arr []models.Product
+	result, err := db.Query("SELECT * FROM products;")
 	if err != nil {
-		log.Fatalf("Ошибка добавления теста: %v", err)
+		log.Fatalf("Ошибка получения массива продуктов: %v", err)
 	}
-	fmt.Println(result)
+	defer result.Close()
+	for result.Next() {
+		var p models.Product
+		err := result.Scan(&p.ID, &p.Name, &p.Quantity, &p.UnitCost, &p.Measure)
+		if err != nil {
+			log.Fatalf("Ошибка присваивания структуры: %v", err)
+		}
+		arr = append(arr, p)
+	}
+	return arr
+}
+func GetProductByID(id int) models.Product {
+	var p models.Product
+	result, err := db.Query("SELECT * FROM products WHERE (id = $1);", id)
+	if err != nil {
+		log.Fatalf("Ошибка получения продукта по id: %v", err)
+	}
+	defer result.Close()
+	if result.Next() {
+		err = result.Scan(&p.ID, &p.Name, &p.Quantity, &p.UnitCost, &p.Measure)
+		if err != nil {
+			log.Fatalf("Ошибка присваивания структуры: %v", err)
+		}
+	}
+	return p
 }

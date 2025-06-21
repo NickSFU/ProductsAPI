@@ -1,13 +1,25 @@
 package main
 
 import (
-	"github.com/NickSFU/ProductsAPI/config"
+	"net/http"
+
+	"github.com/NickSFU/ProductsAPI/db"
+	"github.com/NickSFU/ProductsAPI/handlers"
 )
 
 func main() {
 	//fmt.Println("Hello, GitHub!")
-	config.Init()
+	db.Init()
 	//config.InsertBaseData()
 	//config.DeleteAllData()
+	http.HandleFunc("/product/", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "GET":
+			handlers.GetProductByID(w, r)
+		default:
+			http.Error(w, "Метод не поддерживается", http.StatusMethodNotAllowed)
+		}
+	})
+	http.ListenAndServe(":8080", nil)
 
 }

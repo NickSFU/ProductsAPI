@@ -1,14 +1,14 @@
 package models
 
 type Measure struct {
-	ID   uint
-	Name string
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
 }
 
 type Product struct {
-	ID       uint
-	Name     string
-	Quantity int
-	UnitCost float64
-	Measure  uint
+	ID       uint    `json:"id"`
+	Name     string  `json:"name"`
+	Quantity int     `json:"quantity"`
+	UnitCost float64 `json:"unit_cost"`
+	Measure  uint    `json:"measure"`
 }
