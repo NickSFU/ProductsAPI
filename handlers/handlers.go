@@ -129,5 +129,19 @@ func PutProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteProduct(w http.ResponseWriter, r *http.Request) {
-
+	id, err := GetId(w, r, "product")
+	if err != nil {
+		http.Error(w, "Ошибка получения ID: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	if id == -1 {
+		http.Error(w, "Ошибка получения ID: пустой id ", http.StatusBadRequest)
+		return
+	}
+	db.DeleteProduct(id)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"id":      id,
+		"message": "Продукт успешно удален",
+	})
 }

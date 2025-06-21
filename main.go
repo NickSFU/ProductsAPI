@@ -20,6 +20,8 @@ func main() {
 			handlers.PostProduct(w, r)
 		case "PUT":
 			handlers.PutProduct(w, r)
+		case "DELETE":
+			handlers.DeleteProduct(w, r)
 		default:
 			http.Error(w, "Метод не поддерживается", http.StatusMethodNotAllowed)
 		}
