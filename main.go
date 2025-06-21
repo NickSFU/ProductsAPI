@@ -16,6 +16,10 @@ func main() {
 		switch r.Method {
 		case "GET":
 			handlers.GetProductByID(w, r)
+		case "POST":
+			handlers.PostProduct(w, r)
+		case "PUT":
+			handlers.PutProduct(w, r)
 		default:
 			http.Error(w, "Метод не поддерживается", http.StatusMethodNotAllowed)
 		}
