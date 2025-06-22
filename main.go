@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-	//fmt.Println("Hello, GitHub!")
 	db.Init()
 	//config.InsertBaseData()
 	//config.DeleteAllData()
@@ -22,6 +21,20 @@ func main() {
 			handlers.PutProduct(w, r)
 		case "DELETE":
 			handlers.DeleteProduct(w, r)
+		default:
+			http.Error(w, "Метод не поддерживается", http.StatusMethodNotAllowed)
+		}
+	})
+	http.HandleFunc("/measure/", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "GET":
+			handlers.GetMeasureByID(w, r)
+		case "POST":
+			handlers.PostMeasure(w, r)
+		case "PUT":
+			handlers.PutMeasure(w, r)
+		case "DELETE":
+			handlers.DeleteMeasure(w, r)
 		default:
 			http.Error(w, "Метод не поддерживается", http.StatusMethodNotAllowed)
 		}

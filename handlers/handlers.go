@@ -26,7 +26,7 @@ func GetId(w http.ResponseWriter, r *http.Request, entype string) (int, error) {
 	case "measure":
 		prefix = "/measure/"
 	default:
-		return 0, fmt.Errorf("неизвестный тип сущности: %s", entype)
+		return 0, fmt.Errorf("Неизвестный тип сущности: %s", entype)
 	}
 	idStr := strings.TrimPrefix(path, prefix)
 	if idStr == "" {
@@ -34,7 +34,7 @@ func GetId(w http.ResponseWriter, r *http.Request, entype string) (int, error) {
 	}
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		return 0, fmt.Errorf("неверный формат ID: %s", idStr)
+		return 0, fmt.Errorf("Неверный формат ID: %s", idStr)
 	}
 	return id, nil
 }
@@ -143,5 +143,98 @@ func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"id":      id,
 		"message": "Продукт успешно удален",
+	})
+}
+
+func GetMeasures(w http.ResponseWriter, r *http.Request) {
+	m := db.GetMeasures()
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(m)
+}
+
+func GetMeasureByID(w http.ResponseWriter, r *http.Request) {
+	id, err := GetId(w, r, "measure")
+	if err != nil {
+		http.Error(w, "Ошибка получения ID: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if id == -1 {
+		measure := db.GetMeasures()
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(measure)
+	} else {
+		measure, err := db.GetMeasureByID(id)
+		if err != nil {
+			http.Error(w, "Ошибка получения единицы измерения: "+err.Error(), http.StatusNotFound)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(measure)
+	}
+
+}
+
+func PostMeasure(w http.ResponseWriter, r *http.Request) {
+	var m models.Measure
+	err := json.NewDecoder(r.Body).Decode(&m)
+	if err != nil {
+		http.Error(w, "Ошибка парсинга:", http.StatusBadRequest)
+		return
+	}
+	newid := db.PostMeasure(m)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"id":      newid,
+		"message": "Единица измерения успешно создана",
+	})
+}
+
+func PutMeasure(w http.ResponseWriter, r *http.Request) {
+	var p models.Measure
+	id, err := GetId(w, r, "measure")
+	if err != nil {
+		http.Error(w, "Ошибка получения ID: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	if id == -1 {
+		http.Error(w, "Ошибка получения ID: пустой id ", http.StatusBadRequest)
+		return
+	}
+	p, err = db.GetMeasureByID(id)
+	if err != nil {
+		http.Error(w, "Ошибка получения ID: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = json.NewDecoder(r.Body).Decode(&p)
+	if err != nil {
+		http.Error(w, "Ошибка парсинга:", http.StatusBadRequest)
+		return
+	}
+
+	db.PutMeasure(p)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"id":      id,
+		"message": "Единица измерения успешно изменена",
+	})
+}
+
+func DeleteMeasure(w http.ResponseWriter, r *http.Request) {
+	id, err := GetId(w, r, "measure")
+	if err != nil {
+		http.Error(w, "Ошибка получения ID: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	if id == -1 {
+		http.Error(w, "Ошибка получения ID: пустой id ", http.StatusBadRequest)
+		return
+	}
+	db.DeleteMeasure(id)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"id":      id,
+		"message": "Единица измерения успешно удалена",
 	})
 }

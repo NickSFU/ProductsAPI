@@ -143,3 +143,68 @@ func DeleteProduct(id int) {
 		log.Fatalf("Ошибка удаления продукта из бд: %v", err)
 	}
 }
+
+func GetMeasures() []models.Measure {
+	var arr []models.Measure
+	result, err := db.Query("SELECT * FROM measures;")
+	if err != nil {
+		log.Fatalf("Ошибка получения массива мер измерения: %v", err)
+	}
+	defer result.Close()
+	for result.Next() {
+		var p models.Measure
+		err := result.Scan(&p.ID, &p.Name)
+		if err != nil {
+			log.Fatalf("Ошибка присваивания структуры: %v", err)
+		}
+		arr = append(arr, p)
+	}
+	return arr
+}
+
+func GetMeasureByID(id int) (models.Measure, error) {
+	var m models.Measure
+	row := db.QueryRow("SELECT id, name FROM measures WHERE id = $1", id)
+
+	err := row.Scan(&m.ID, &m.Name)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return m, fmt.Errorf("продукт с ID=%d не найден", id)
+		}
+		return m, fmt.Errorf("ошибка при сканировании данных: %v", err)
+	}
+
+	return m, nil
+}
+
+func PostMeasure(p models.Measure) int {
+	var newid int
+	err := db.QueryRow(`INSERT INTO measures 
+						(name) 
+						VALUES($1) RETURNING id`,
+		p.Name).
+		Scan(&newid)
+	if err != nil {
+		log.Fatalf("Ошибка записи продукта в бд: %v", err)
+	}
+	return newid
+}
+
+func PutMeasure(p models.Measure) {
+
+	_, err := db.Exec(`UPDATE measures SET name=$1 
+						WHERE id=$2;`,
+		p.Name, p.ID)
+
+	if err != nil {
+		log.Fatalf("Ошибка изменения единицы измерения в бд: %v", err)
+	}
+
+}
+
+func DeleteMeasure(id int) {
+	_, err := db.Exec(`DELETE FROM measures WHERE id=$1`, id)
+	if err != nil {
+		log.Fatalf("Ошибка удаления единицы измерения из бд: %v", err)
+	}
+}
